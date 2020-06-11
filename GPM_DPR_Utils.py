@@ -35,6 +35,16 @@ freezing = DPR['NS']['VER']['heightZeroDeg'][:]
 zcolor = 'pyart_NWSRef'
 
 def compute_xsect(raw_lat, raw_lon, start_lon, end_lon, ray_number):
+  
+  r"""
+  Determines vertical profiles of Ku-band reflectivity (dBZ), mass-weighted mean drop diameter (mm), drop number concentration (# $cm^{-3}$), and $0^{o}C$ isotherm height.
+  
+  
+  Parameters:
+  -----------
+  
+  
+  """
     
     
     ind1 = np.where((lon[:,0]>=start_lon))
@@ -130,6 +140,64 @@ n0 = data[3]
 ku = data[4]
 zero_deg_isotherm = data[5]
 
+
+
+def plot_reflectivity_grid(z, lat_min, lat_max, lon_min, lon_max, ray, ind3, value_min, value_max, value_interval, colormap):
+    
+    #Determine median value of ind3 (intersection between longitudes)
+    cross_track_index = int(len(ind3)/2)+ind3[0]
+
+    #Mask near surface reflectivity values
+    z = np.ma.masked_where(z<=12, z)
+    
+    label_size = 24
+    title_size = 26
+    
+    plt.figure(figsize=(10,10))
+    
+    time = input("Enter the date and time of the GPM DPR overpass in UTC:")
+    time_value = time
+    
+    cmin = value_min; cmax = value_max; cint = value_interval; clevs = np.round(np.arange(cmin,cmax,cint),2)
+    nlevs = len(clevs) - 1; cmap = plt.get_cmap(name='pyart_NWSRef',lut=nlevs)
+
+    plt.figure(figsize=(10,10))
+
+#xlim = np.array([-110,-75]); ylim = np.array([15,40])
+    xlim = np.array([lon_min,lat_min]); ylim = np.array([lat_min,lon_min])
+    
+    m = Basemap(projection='cyl',lon_0=np.mean(xlim),lat_0=np.mean(ylim),llcrnrlat=ylim[0],urcrnrlat=ylim[1],llcrnrlon=xlim[0],urcrnrlon=xlim[1],resolution='i')
+    m.drawcoastlines(); m.drawstates(), m.drawcountries()
+    cs = m.contourf(lon,lat,z,clevs,cmap=cmap,extend='both')
+    cs2 = m.plot(lon[:,0]+0.03,lat[:,0]-0.03,'--k',zorder=4)
+    cs3 = m.plot(lon[:,-1]-0.03,lat[:,-1]+0.03,'--k',zorder=4)
+    m.plot(lon[ind3,ray],lat[ind3,ray],'-w',zorder=4,lw=0.25,alpha=0.75)
+
+
+##Change this to modify star size (cross-section starting point)
+    m.plot(lon[ind3[0],ray],lat[ind3[0],ray],'*w',markersize = 20, zorder=4,lw=0.25,alpha=0.75,markerfacecolor='k',markeredgewidth=0.25)
+   
+
+
+    m.plot(lon[cross_track_index,:],lat[cross_track_index,:],'-w',zorder=4,lw=0.25,alpha=0.75)
+    m.plot(lon[cross_track_index,0],lat[cross_track_index,0],'*w', zorder=4,lw=0.25,alpha=0.75,markerfacecolor='k',markeredgewidth=0.25)
+    m.drawcounties()
+    cbar = m.colorbar(cs,size='2%')
+    cbar.ax.set_ylabel('dBZ',name='Calibri',size=label_size)
+    cticks = []
+    for i in clevs:
+        cticks.append(int(i)) if i.is_integer() else cticks.append(i)
+        cbar.set_ticks(clevs[::4])
+        cbar.set_ticklabels(cticks[::4])
+    for i in cbar.ax.yaxis.get_ticklabels():
+        i.set_family('Calibri')
+        i.set_size(label_size)
+
+    plt.title('GPM Overpass'+time_value + 'Ku-Band', size = title_size)
+    
+    plot = plt.show()
+    
+    return plot
 
 
 def plot_DPR (R_gpm, y, data_variables, zero_deg_isotherm, value_min, value_max, x_min, x_max, y_min, y_max, value_interval, label_font_size, title_font_size, colormap):
