@@ -180,7 +180,7 @@ def compute_xsect(raw_lat, raw_lon, start_lon, end_lon, ray_number):
     plt.figure(figsize=(10,10))
 
 #xlim = np.array([-110,-75]); ylim = np.array([15,40])
-    xlim = np.array([lon_min,lat_min]); ylim = np.array([lat_min,lon_min])
+    xlim = np.array([lon_min,lon_min]); ylim = np.array([lat_min,lat_min])
     
     m = Basemap(projection='cyl',lon_0=np.mean(xlim),lat_0=np.mean(ylim),llcrnrlat=ylim[0],urcrnrlat=ylim[1],llcrnrlon=xlim[0],urcrnrlon=xlim[1],resolution='i')
     m.drawcoastlines(); m.drawstates(), m.drawcountries()
