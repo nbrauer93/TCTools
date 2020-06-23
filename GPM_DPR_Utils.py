@@ -292,7 +292,35 @@ Plots vertical along-track cross-sections of GPM DPR Ku-band reflectivity (dBZ),
 
 plot = plot_DPR(R_gpm, y, ku, zero_deg_isotherm, 12, 60, 0, 250, 0, 15, 2.5, 24, 26, zcolor)
 
+
+
+def open_vn_file(file, elev_angle):
     
+    r"""
+    Function opens tthe GPM VN file and stores latitude, longitude, radar site latitude, radar site longitude,
+    reflectivity, elevation angle, and reflectivity at a given elevation angle
+    
+    Parameters:
+    -----------
+    file(string): Declare the file name as a string before calling the function
+    elev_angle(int): 0 is the default, which corresponds to a 0.5 degree elevation angle
+    
+    """
+    
+    
+    with gzip.open(file) as gz:
+        with netCDF4.Dataset('file', mode = 'r', memory=gz.read()) as nc:
+            print(nc.variables)
+            latitude = nc.variables['latitude'][:].T
+            longitude = nc.variables['longitude'][:].T
+            radar_lat = nc.variables['site_lat'][:]
+            radar_lon = nc.variables['site_lon'][:]
+            z = nc.variables['ZFactorCorrected'][:]
+            elev_angle = nc.variables['timeSweepStart'][:]
+            
+            z_elev_angle = z[elev_angle,:]
+            
+            return latitude, longitude, radar_lat, radar_lon, z, z_elev_angle
     
 
 
