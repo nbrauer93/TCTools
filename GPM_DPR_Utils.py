@@ -323,6 +323,64 @@ def open_vn_file(file, elev_angle):
             return latitude, longitude, radar_lat, radar_lon, z, z_elev_angle
     
 
+ r"""
+ Outputs a colormap for reflectivity (z_color) from 0-45 dBZ
+ 
+ """
+    
+    
+colormap = ['white','dodgerblue', 'deepskyblue', 'lawngreen', 'lightgreen', 'green', 'gold', 'darkorange', 'red', 'firebrick']
+
+
+z_color = []
+
+
+for i in range(len(z_elev_angle)):
+
+    if z_elev_angle[i]<=5:
+      
+        z_color.append(colormap[0])
+    
+    elif z_elev_angle[i]>5 and z_elev_angle[i]<=10:
+        
+        z_color.append(colormap[1])
+    
+    elif z_elev_angle[i]>10 and z_elev_angle[i]<=15:
+        
+        z_color.append(colormap[2])
+    
+    elif z_elev_angle[i]>15 and z_elev_angle[i]<=20:
+        
+        z_color.append(colormap[3])
+    
+    elif z_elev_angle[i]>20 and z_elev_angle[i]<=25:
+        
+        z_color.append(colormap[4])
+    
+    elif z_elev_angle[i]>25 and z_elev_angle[i]<=30:
+        
+        z_color.append(colormap[5])
+        
+    elif z_elev_angle[i]>30 and z_elev_angle[i]<=35:
+        
+        z_color.append(colormap[6])
+    
+    elif z_elev_angle[i]>35 and z_elev_angle[i]<=40:
+        
+        z_color.append(colormap[7])
+        
+    elif z_elev_angle[i]>40 and z_elev_angle[i]<=45:
+        
+        z_color.append(colormap[8])
+        
+    elif z_elev_angle[i] == -100:
+        
+        z_color.append(colormap[0])
+        
+        
+from matplotlib.colors import ListedColormap
+cmap_z = ListedColormap(colormap)       
+    
 
 
     
