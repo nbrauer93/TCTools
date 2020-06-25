@@ -135,6 +135,60 @@ def wind_shear_comp_vectors (u_upper, u_lower, v_upper, v_lower):
     return u_shear, v_shear, shear_vector
 
 
+def shear_comps(shear, shear_dir):
+    
+    r"""
+    Takes the shear vector magnitude and shear vector direction and outputs zonal shear and meridional shear in knots
+    
+    Parameters:
+    -----------
+    shear(int): Magnitude of the 850-200 mb shear vector
+    shear_dir(int): Angle of the 850-200 mb shear vector in degrees
+    
+    """
+    
+    if shear_dir<270 and shear_dir>180:
+        
+        angle = 270-shear_dir
+        u_shear = shear*np.cos(angle*(np.pi/180))
+        v_shear = shear*np.sin(angle*(np.pi/180))
+    
+    elif shear_dir<180 and shear_dir>90:
+        
+        angle = 180-shear_dir
+        u_shear = shear*np.cos(angle*(np.pi/180))
+        v_shear = shear*np.sin(angle*(np.pi/180))
+        
+    elif shear_dir<90 and shear_dir>0:
+        
+        angle = 90-shear_dir
+        u_shear = shear*np.cos(angle*(np.pi/180))
+        v_shear = shear*np.sin(angle*(np.pi/180))
+        
+    elif shear_dir<360 and shear_dir>270:
+        
+        angle = 360-shear_dir
+        u_shear = shear*np.cos(angle*(np.pi/180))
+        v_shear = shear*np.sin(angle*(np.pi/180))
+        
+    elif shear_dir==360 or shear_dir==0:
+        u_shear = 0
+        v_shear = -shear
+    
+    elif shear_dir == 90:
+        u_shear = -1*shear
+        v_shear = 0
+    
+    elif shear_dir == 180:
+        u_shear = 0
+        v_shear = shear
+    
+    elif shear_dir == 270:
+        u_shear = shear
+        v_shear = 0
+        
+    return u_shear, v_shear
+
 
 #Convert latitude/longitude to distance 
 
