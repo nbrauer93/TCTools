@@ -396,30 +396,5 @@ def annuli(coord, eyewall_radius, inner_band_radius, outer_band_radius, radar_da
     radar_outer = radar_data[:,radar_outer_lat,radar_outer_lon]
     
     return radar_eyewall, radar_inner, radar_outer
-    
-    
-    
-    
-    
-
-    
-    
-        
-        
-        
-        
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
-
-    
-    
-
+   
     
