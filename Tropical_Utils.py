@@ -56,6 +56,35 @@ def sat_vap_pres(temp):
     
     return e_s
 
+def draw_vert_line(lat_min,lat_max,longitude):
+    
+    latitude_vert = np.arange(lat_min,lat_max,step = 1)
+    longitude_vert = np.full((lat_max-lat_min),longitude)
+    
+    return longitude_vert,latitude_vert
+
+def draw_horiz_line(lon_min,lon_max,latitude):
+    
+    longitude_horiz = np.arange(lon_min,lon_max,step = 1)
+    latitude_horiz = np.full((lon_max-lon_min),latitude)
+    
+    return longitude_horiz,latitude_horiz
+
+
+def positive_slope(lat_min,lat_max,lon_min,lon_max):
+    
+    lat = [lat_min,lat_max]
+    lon = [lon_min,lon_max]
+    
+    return lon,lat
+
+
+def negative_slope(lat_min,lat_max,lon_min,lon_max):
+    
+    lat = [lat_min,lat_max]
+    lon = [lon_max,lon_min]
+    
+    return lon,lat
 
 
 #Compute wind magnitude
