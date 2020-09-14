@@ -1,0 +1,87 @@
+#Compute the slope of vertical profiles of reflectivity below the melting layer:
+
+
+along_track_index = 0
+
+altitude_raw = y[along_track_index,:]
+
+'''
+#altitude has shape of 176; zero_degree_isotherm has shape of 134
+#Loop through all pixels along-track(134) and height(176)
+#Liquid phase if ku-pixels reside below zero_deg_isotherm; ice phase if ku-pixels reside above zero_deg_isotherm
+'''
+
+altitude_2d = np.tile(altitude_raw,(len(zero_deg_isotherm),1))  #Taking altitude axis, repeating length of times of length of zero-deg-isotherm, along the column (first) axis
+zero_deg_isotherm_2d = np.tile(zero_deg_isotherm, (len(altitude_raw),1)).T 
+
+ku_ice = ku.copy()
+ku_ice[altitude_2d < zero_deg_isotherm_2d] = np.nan
+
+ku_liquid = ku.copy()
+ku_liquid[altitude_2d >= zero_deg_isotherm_2d] = np.nan
+'''
+Now we need to find the values of ku_liquid at the zero degree isotherm
+Iterate over each range gate:
+'''
+ku_at_isotherm = []
+
+for i in range(len(zero_deg_isotherm)):
+    
+    idx_above_0c = np.where((altitude_raw>=zero_deg_isotherm[i]))[0][0] #Find first index where altitude is greater than or equal to 0 degree isotherm
+    altitude_above_0c = altitude_raw[idx_above_0c] #Assign aforementioned index to raw altitude array 
+    altitude_below_0c = altitude_raw[idx_above_0c-1] #Assign index before aforementioned index to altitude array (1 index less is first one below freezing level)
+    
+    ku_above_0c = ku[i,idx_above_0c]  #Assign ice-phase range gates to ku-band array
+    ku_below_0c = ku[i,idx_above_0c-1] #Assign liquid-phase range gates to ku-band array
+    
+    fractional_height = (zero_deg_isotherm[i] - altitude_below_0c)/(altitude_above_0c - altitude_below_0c) #Determine the fraction of above and below indices relative to 0deg isotherm height
+    
+    weighted_ku = ((ku_above_0c - ku_below_0c)*fractional_height)+ku_below_0c #weight the above and below ku range gates depending on vertical distance from the 0deg isotherm
+    ku_at_isotherm.append(weighted_ku) 
+    
+    
+ku_at_surface = [] #Determine the lowest ku-band value (closest to the surface)
+
+for i in range(len(zero_deg_isotherm)): #Loop through the along track dimension
+    
+    if np.ma.is_masked(ku[i,0]) == False:  #If first column is NOT masked, this is Ku value closest to surface
+        ku_surface = ku[i,0]
+    
+    elif np.ma.is_masked(ku[i,1]) == False: #If first column is masked, jump to the next column (up one range bin)
+        ku_surface = ku[i,1]
+        
+    else:
+        ku_surface = np.nan #If prior conditions are not met, call it NaN
+        
+    ku_at_surface.append(ku_surface)
+        
+        
+'''
+Now calculate the slopes of reflectivity in both the liquid and ice phase at all along-track points:
+Slope = rise over run; in this case, (reflectivity_top - reflectivity_bottom)/zero_degree_isotherm
+'''
+
+
+ku_slope_liquid = []  #Determine the slope of KuPR in the liquid phase (in -dBZ/km); negative slope implies KuPR increase towards the surface
+
+for i in range(ku_liquid.shape[0]):
+    
+    slope = (ku_at_surface[i] - ku_at_isotherm[i])/zero_deg_isotherm[i]
+    
+    ku_slope_liquid.append(slope)
+    
+    
+#Now determine the slope of KuPR in the ice phase
+#First, determine the top-most KuPR range bin
+
+
+ku_at_TOA = []
+
+for i in range(len(zero_deg_isotherm)):
+    
+    if np.ma.is_masked(ku[i,len(zero_deg_isotherm)]) == True:
+        ku_at_TOA = np.nan
+    
+    else:
+        
+        
