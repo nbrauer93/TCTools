@@ -76,7 +76,7 @@ for i in range(0,365):
         
         url = 'https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L2/GPM_2ADPR.06/2015/' + url_number[i]+'/'
         
-        filename = '2A.GPM.DPR.V8-*.' + orbit_2015[i] + 'V06A.HDF5'
+        filename = '2A.GPM.DPR.V8-*.' + orbit_2015[j] + 'V06A.HDF5'
         
         result = requests.get(url)
     
