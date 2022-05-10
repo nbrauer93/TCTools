@@ -1,0 +1,126 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+def arrow_endpoint(shear_dir):
+
+r"""
+
+This function serves to plot an arrow in the direction of the 850-200 hPa shear vector (useful to determine precipitation asymmetries in tropical cyclones)
+dx represents the change in the x-direction of the arrow in a rotated coordinate system
+dy represents the change in the y-direction of the arrow in a rotated coordinate system
+Both output variables will be used to extract shear-relative quadrants in TCs based off storm latitude and storm longitude.
+
+shear_dir (int): Direction of the 850-200 hPa shear vector
+
+
+"""
+    
+    if 0<shear_dir<90: #NE shear
+        
+        angle_deg = 90 - shear_dir
+        angle = np.deg2rad(angle_deg)
+        dx = -1*np.cos(angle)
+        dy = -1*np.sin(angle)
+        
+    if 90<shear_dir<180: #SE shear
+        
+        angle_deg = 180 - shear_dir
+        angle = np.deg2rad(angle_deg)
+        dx = -1*np.cos(angle)
+        dy = np.sin(angle)
+        
+    if 180<shear_dir<270: #SW shear
+        
+        angle_deg = 270-shear_dir
+        angle = np.deg2rad(angle_deg)
+        dx = np.cos(angle)
+        dy = np.sin(angle)
+        
+    if 270<shear_dir<360: #NW shear
+        
+        angle_deg = shear_dir - 270
+        angle = np.deg2rad(angle_deg)
+        dx = np.cos(angle)
+        dy = -1*np.sin(angle)
+        
+    if shear_dir  == 0 or shear_dir == 360:
+        
+        dx = 0
+        dy = -1
+        
+    if shear_dir == 90:
+        
+        dx = -1
+        dy = 0
+        
+    if shear_dir == 180:
+        
+        dx = 0
+        dy = 1
+        
+    if shear_dir == 270:
+        
+        dx = 1
+        dy = 0
+        
+
+    return [dx,dy]
+
+
+dx = arrow_endpoint(wind_dir)[0]
+dy = arrow_endpoint(wind_dir)[1]
+
+
+
+
+
+def shear_quadrants(lon, lat, storm_lon, storm_lat, shear_dir):
+
+    r"""
+    This function extracts 850-200 hPa shear-relative quadrants in tropical cyclones relative to IBTrACS storm centers. It can be used to partition
+    vertical profiles of different polarimetric radar variables (i.e. Z and Zdr) in different portions of a TCs to determine microphysical processes.
+    
+    lon (float): Array of longitude from the data file (i.e. radar or satellite data)
+    lat (float): Array of latitude from the data file (i.e. radar or satellite data)
+    storm_lon (float): Longitude of storm center from IBTrACS or HURDAT2
+    storm_lat (float): Latitude of storm center from IBTrACS or HURDAT2
+    shear_dir (int): Direction of the 850-200 hPa shear vector (can be obtained from the SHIPS database)
+    
+    
+    """
+
+
+    
+    if 0<shear_dir<90:
+        
+        dr_quad = np.where((storm_lat-np.abs(dy)<=lat)&(lat<=storm_lat+np.abs(dy))&(storm_lon-np.abs(dx)-np.abs(dy)<=lon)&(lon<=storm_lon))[0]
+        dl_quad = np.where((storm_lat-np.abs(dy) - np.abs(dx) <=lat)&(lat<=storm_lat)&(storm_lon-np.abs(dx)<=lon)&(lon<=storm_lon+np.abs(dx)))[0]
+        ul_quad = np.where((storm_lat-np.abs(dy)<=lat)&(lat<=storm_lat+np.abs(dy))&(storm_lon<=lon)&(lon<storm_lon+np.abs(dx) + np.abs (dy)))[0]
+        ur_quad = np.where((storm_lat<=lat)&(lat<=storm_lat+np.abs(dy)+np.abs(dx))&(storm_lon-np.abs(dx)<=lon)&(lon<=storm_lon+np.abs(dx)))[0]
+        
+        
+    if 90<shear_dir<180:
+        
+        dr_quad = np.where((storm_lat<=lat)&(lat<=storm_lat+np.abs(dy)+np.abs(dx))&(storm_lon-np.abs(dx)<=lon)&(lon<=storm_lon+np.abs(dx)))[0]
+        dl_quad = np.where((storm_lat-np.abs(dx)<=lat)&(lat<=storm_lat+np.abs(dy))&(storm_lon-np.abs(dx)- np.abs(dy)<=lon)&(lon<=storm_lon))[0]
+        ul_quad = np.where((storm_lat-np.abs(dy)- np.abs(dx)<=lat)&(lat<=storm_lat)&(storm_lon-np.abs(dy)<=lon)&(lon<=storm_lon+np.abs(dx))[0]
+        ur_quad = np.where((storm_lat-np.abs(dy)<=lat)&(lat<=storm_lat+np.abs(dx)+ np.abs(dx))&(storm_lon<=lon)&(lon<=storm_lon+np.abs(dx) + np.abs(dy)))[0]
+        
+    
+    if 180<shear_dir<270:
+        
+        dr_quad = np.where((storm_lat-np.abs(dx)<=lat)&(lat<=storm_lat+np.abs(dy))&(storm_lon<=lon)&(lon<=storm_lon+np.abs(dx)+np.abs(dy)))[0]
+        dl_quad = np.where((storm_lat<=lat)&(lat<=storm_lat+np.abs(dy)+np.abs(dx))&(storm_lon-np.abs(dx)-np.abs(dy)<=lon)&(lon<=storm_lon+np.abs(dx)))[0]
+        ul_quad = np.where((storm_lat-np.abs(dy)<=lat)&(lat<=storm_lat+np.abs(dy)+ np.abs(dx))&(storm_lon-np.abs(dx)- np.abs(dy)<=lon)&(lon<=storm_lon))[0]
+        ur_quad = np.where((storm_lat-np.abs(dy) - np.abs(dx)<=lat)&(lat<=storm_lat)&(storm_lon-np.abs(dx)<=lon)&(lon<=storm_lon+np.abs(dx)))[0]
+        
+        
+    if 270<shear_dir<360:
+        
+        dr_quad = np.where((storm_lat-np.abs(dy)- np.abs(dx)<=lat)&(lat<=storm_lat)&(storm_lon-np.abs(dx)<=lon)&(lon<=storm_lon+np.abs(dx)))[0]
+        dl_quad = np.where((storm_lat-np.abs(dy)<=lat)&(lat<=storm_lat+np.abs(dx))&(storm_lon<=lon)&(lon<=storm_lon+np.abs(dx)))[0]
+        ul_quad = np.where((storm_lat<=lat)&(lat<=storm_lat+np.abs(dy)+ np.abs(dx))&(storm_lon-np.abs(dx)<=lon)&(lon<=storm_lon+np.abs(dx)))[0]
+        ur_quad = np.where((storm_lat-np.abs(dx)<=lat)&(lat<=storm_lat+np.abs(dy))&(storm_lon-np.abs(dx)- np.abs(dy)<=lon)&(lon<=storm_lon))[0]
+        
+        
+    return dr_quad,dl_quad,ul_quad,ur_quad
